@@ -7,8 +7,8 @@
 //
 
 #import "AppDelegate.h"
-
-#import "MasterViewController.h"
+#import "AFNSyncEngine.h"
+#import "Post.h"
 
 @implementation AppDelegate
 
@@ -18,10 +18,10 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-    // Override point for customization after application launch.
-    UINavigationController *navigationController = (UINavigationController *)self.window.rootViewController;
-    MasterViewController *controller = (MasterViewController *)navigationController.topViewController;
-    controller.managedObjectContext = self.managedObjectContext;
+    [MagicalRecord setupCoreDataStackWithStoreNamed:@"AFN_Magical_Record_Example.sqlite"];
+    
+    [[AFNSyncEngine sharedEngine] registerNSManagedObjectClassToSync:[Post class]];
+
     return YES;
 }
 							
@@ -44,13 +44,12 @@
 
 - (void)applicationDidBecomeActive:(UIApplication *)application
 {
-    // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    [[AFNSyncEngine sharedEngine] startSync];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application
 {
-    // Saves changes in the application's managed object context before the application terminates.
-    [self saveContext];
+    [MagicalRecord cleanUp];
 }
 
 - (void)saveContext
